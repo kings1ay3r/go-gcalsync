@@ -24,13 +24,13 @@ func New() (Core, error) {
 		logger.GetInstance().Error(nil, "unable to init services : %v", err)
 		return nil, err
 	}
-	dao, err := dao.New()
+	daoInst, err := dao.New()
 	if err != nil {
 		return nil, err
 	}
 	return &calendarClient{
 		googleCalClient: client,
-		dao:             dao,
+		dao:             daoInst,
 	}, nil
 }
 
