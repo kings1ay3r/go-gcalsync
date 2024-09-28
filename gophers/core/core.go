@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	googlecalendar "gcalsync/gophers/clients/google-calendar"
+	"gcalsync/gophers/clients/logger"
 	"gcalsync/gophers/dao"
 	"gcalsync/gophers/dto"
 	"gcalsync/gophers/middlewares/auth"
@@ -15,16 +16,22 @@ type Core interface {
 	GetMyCalendarEvents(ctx context.Context) ([]dto.Calendar, error)
 }
 
-func New() Core {
+func New() (Core, error) {
 
 	client, err := googlecalendar.New()
+
 	if err != nil {
-		panic(err)
+		logger.GetInstance().Error(nil, "unable to init services : %v", err)
+		return nil, err
+	}
+	dao, err := dao.New()
+	if err != nil {
+		return nil, err
 	}
 	return &calendarClient{
 		googleCalClient: client,
-		dao:             dao.New(),
-	}
+		dao:             dao,
+	}, nil
 }
 
 type calendarClient struct {

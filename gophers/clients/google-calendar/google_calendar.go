@@ -3,6 +3,7 @@ package googlecalendar
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gcalsync/gophers/dao"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -49,19 +50,22 @@ type googleCalendar struct {
 
 // New initializes a GoogleCalendar instance with the DAO.
 func New() (GoogleCalendar, error) {
-	daoInstance := dao.New()
+	daoInstance, err := dao.New()
+	if err != nil {
+		return nil, fmt.Errorf("failed to init dao: %w", err)
+	}
 	clientID := os.Getenv("GOOGLE_CLIENT_ID")
 	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
-	if clientID == "" || clientSecret == "" {
-		return nil, errors.New("GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set")
+	redirectURL := os.Getenv("GOOGLE_CALLBACK_URL")
+	if clientID == "" || clientSecret == "" || redirectURL == "" {
+		return nil, errors.New("GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, or GOOGLE_CALLBACK_URL not set")
 	}
-
 	config := &oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     google.Endpoint,
 		Scopes:       []string{calendar.CalendarScope},
-		RedirectURL:  os.Getenv("GOOGLE_CALLBACK_URL"),
+		RedirectURL:  redirectURL,
 	}
 
 	return &googleCalendar{
@@ -73,6 +77,7 @@ func New() (GoogleCalendar, error) {
 
 // GetAuthCodeURL ...
 func (g *googleCalendar) GetAuthCodeURL(_ context.Context, userToken string) string {
+	// TODO: Setup JWT Token / Token User Mapping for security
 	encodedUserID := url.QueryEscape(userToken)
 	return g.config.AuthCodeURL(encodedUserID, oauth2.AccessTypeOffline)
 }

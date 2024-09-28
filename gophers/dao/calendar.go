@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"time"
 )
@@ -18,34 +19,6 @@ type Calendar struct {
 	UpdatedAt  time.Time
 }
 
-// FindCalendarByID checks if a calendar exists in the database by its CalendarID.
-func FindCalendarByID(db *gorm.DB, calendarID string) (*Calendar, error) {
-	var calendar Calendar
-	err := db.Where("calendar_id = ?", calendarID).First(&calendar).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &calendar, nil
-}
-
-// InsertCalendar inserts a new calendar into the database.
-func InsertCalendar(db *gorm.DB, calendarID, name string) (*Calendar, error) {
-	calendar := &Calendar{
-		CalendarID: calendarID,
-		Name:       name,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
-	}
-	err := db.Create(calendar).Error
-	if err != nil {
-		return nil, err
-	}
-	return calendar, nil
-}
-
 // FindCalendarByCalendarID ...
 func (d *dao) FindCalendarByCalendarID(ctx context.Context, calendarID string) (*Calendar, error) {
 	var calendar Calendar
@@ -54,7 +27,8 @@ func (d *dao) FindCalendarByCalendarID(ctx context.Context, calendarID string) (
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, err
+
+		return nil, fmt.Errorf("failed to find calendar: %w", err)
 	}
 	return &calendar, nil
 }
@@ -72,6 +46,7 @@ func (d *dao) InsertCalendar(ctx context.Context, calendar Calendar) (*Calendar,
 func (d *dao) GetUserCalendars(ctx context.Context, userID int) ([]Calendar, error) {
 	var calendars []Calendar
 
+	// TODO: Remove preloading. Implement a seperate paginated api for events. Control preload using a flag
 	if err := d.DB.Where("user_id = ?", userID).Preload("Events").Find(&calendars).Error; err != nil {
 		return nil, err
 	}

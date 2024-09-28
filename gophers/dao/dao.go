@@ -20,10 +20,10 @@ type DAO interface {
 }
 
 // New ...
-func New() DAO {
+func New() (DAO, error) {
 	return &dao{
 		DB: DB,
-	}
+	}, nil
 }
 
 type dao struct {

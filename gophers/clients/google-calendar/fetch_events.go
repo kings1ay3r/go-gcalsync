@@ -18,7 +18,10 @@ func (g *googleCalendar) fetchEvents(ctx context.Context, calendarID string, tok
 		return nil, err
 	}
 	if newToken.AccessToken != token.AccessToken || newToken.RefreshToken != token.RefreshToken || newToken.Expiry != token.Expiry {
-		userID, _ := ctx.Value("currentUser").(int)
+		userID, ok := ctx.Value("currentUser").(int)
+		if !ok {
+			return nil, fmt.Errorf("could not get current user id")
+		}
 		if err := g.dao.SaveUserTokens(ctx, userID, newToken.AccessToken, newToken.RefreshToken, newToken.Expiry); err != nil {
 			return nil, err
 		}

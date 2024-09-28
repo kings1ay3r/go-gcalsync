@@ -77,7 +77,7 @@ func TestInsertCalendars(t *testing.T) {
 		mockDAO.AssertNotCalled(t, "SaveUserCalendarData", ctx, anything, anything)
 	})
 
-	t.Run("Error when fetching events from Google Calendar API", func(t *testing.T) {
+	t.Run("Execution continues when fetching events from Google Calendar API fails", func(t *testing.T) {
 		ctx := getContextWithSession()
 		mockDAO := daomocks.NewDAO(t)
 		mockGoogleCalClient := gcmocks.NewGoogleCalendar(t)
@@ -90,15 +90,18 @@ func TestInsertCalendars(t *testing.T) {
 		}
 		mockGoogleCalClient.On("FetchCalendars", anything, anything, anything).Return(mockCalendars, nil)
 		mockGoogleCalClient.On("FetchEventsWithUserID", anything, anything, "cal1").Return(nil, fmt.Errorf("unable to fetch events"))
+		mockDAO.On("SaveUserCalendarData", anything, anything, anything).Return(nil)
 
 		err := calendarClient.InsertCalendars(ctx, "mock-code")
 
-		assert.Error(t, err)
-		assert.Equal(t, "unable to retrieve calendar list: unable to fetch events", err.Error())
-		mockDAO.AssertNotCalled(t, "SaveUserCalendarData", ctx, anything, anything)
+		// Allow the goroutine to run
+		time.Sleep(100 * time.Millisecond)
+
+		assert.NoError(t, err)
 	})
 
 	t.Run("Error when saving calendar data in background", func(t *testing.T) {
+
 		ctx := getContextWithSession()
 		mockDAO := daomocks.NewDAO(t)
 		mockGoogleCalClient := gcmocks.NewGoogleCalendar(t)

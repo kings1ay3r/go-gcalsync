@@ -11,6 +11,7 @@ import (
 // SaveUserCalendarData saves the user’s calendar and associated events in a single transaction.
 func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []*CalendarData) error {
 	log := logger.GetInstance()
+	// TODO: Refactor to use GORM Transaction
 	tx := d.DB.Begin()
 
 	defer func() {
@@ -24,9 +25,7 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []
 		// Check if the calendar already exists
 		err := tx.Where("calendar_id = ? AND user_id = ?", calendarData.CalendarID, userID).First(&calendar).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			tx.Rollback()
-			log.Error(ctx, "save user calendar data error: %v", err)
-			return err
+			return rollbackWithError(tx, ctx, err, "error searching calendar")
 		}
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Calendar does not exist, create a new one
@@ -34,13 +33,9 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []
 				CalendarID: calendarData.CalendarID,
 				Name:       calendarData.Name,
 				UserID:     uint(userID),
-				CreatedAt:  time.Now(),
-				UpdatedAt:  time.Now(),
 			}
 			if err := tx.Create(&calendar).Error; err != nil {
-				tx.Rollback()
-				log.Error(ctx, "save user calendar data error: %v", err)
-				return err
+				return rollbackWithError(tx, ctx, err, "error searching calendar")
 			}
 			log.Info(ctx, "save user calendar data: %v", calendar.ID)
 		} else {
@@ -51,9 +46,7 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []
 			var event Event
 			err = tx.Where("calendar_id = ? AND event_id = ?", calendar.ID, eventData.EventID).First(&event).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-				tx.Rollback()
-				log.Error(ctx, "save user calendar event error: %v", err)
-				return err
+				return rollbackWithError(tx, ctx, err, "error searching calendar")
 			}
 
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -63,13 +56,9 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []
 					Summary:    eventData.Name,
 					StartTime:  eventData.StartTime,
 					EndTime:    eventData.EndTime,
-					CreatedAt:  time.Now(),
-					UpdatedAt:  time.Now(),
 				}
 				if err := tx.Create(&event).Error; err != nil {
-					tx.Rollback()
-					log.Error(ctx, "save user calendar event error: %v", err)
-					return err
+					return rollbackWithError(tx, ctx, err, "error searching calendar")
 				}
 				log.Info(ctx, "Event created: %v", event.ID)
 			} else {
@@ -78,9 +67,7 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []
 				event.EndTime = eventData.EndTime
 				event.UpdatedAt = time.Now()
 				if err := tx.Save(&event).Error; err != nil {
-					tx.Rollback()
-					log.Error(ctx, "save user calendar event error: %v", err)
-					return err
+					return rollbackWithError(tx, ctx, err, "error searching calendar")
 				}
 				log.Info(ctx, "Event updated: %v", event.ID)
 			}
@@ -88,6 +75,12 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []
 	}
 
 	return tx.Commit().Error
+}
+
+func rollbackWithError(tx *gorm.DB, ctx context.Context, err error, message string) error {
+	tx.Rollback()
+	logger.GetInstance().Error(ctx, message+": %v", err)
+	return err
 }
 
 // CalendarData holds the data for a calendar and its associated events.

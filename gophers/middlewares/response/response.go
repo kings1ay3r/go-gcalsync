@@ -5,6 +5,13 @@ import (
 	"net/http"
 )
 
+type Response struct {
+	Status  string      `json:"status"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
 // APIMiddleware wraps a handler to standardize the JSON response
 func APIMiddleware(process func(w http.ResponseWriter, r *http.Request) (interface{}, error)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -16,12 +23,9 @@ func APIMiddleware(process func(w http.ResponseWriter, r *http.Request) (interfa
 		// Err Response
 		if err != nil {
 			// TODO: Translate errors into http Errors
+
 			code := getErrCode(err)
-			res := struct {
-				Status  string `json:"status"`
-				Code    int    `json:"code"`
-				Message string `json:"message"`
-			}{
+			res := Response{
 				Status:  "fail",
 				Code:    code,
 				Message: err.Error(),
@@ -35,11 +39,7 @@ func APIMiddleware(process func(w http.ResponseWriter, r *http.Request) (interfa
 			return
 		}
 
-		res := struct {
-			Status string      `json:"status"`
-			Data   interface{} `json:"data,omitempty"`
-			Code   int         `json:"code"`
-		}{
+		res := Response{
 			Status: "success",
 			Code:   200,
 			Data:   resp,

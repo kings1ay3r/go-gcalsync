@@ -6,52 +6,62 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"log"
 	"os"
 )
 
 var DB *gorm.DB
 
-func InitDB() {
+// TODO: Move migrations and seed to a seperate command
+
+// InitDB ...
+func InitDB() error {
 	dsn := os.Getenv("DATABASE_URL")
 	var err error
+	log := logger.GetInstance()
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.GetInstance(),
+		Logger: log,
 	})
 	if err != nil {
-		log.Fatalf("Failed to connect to the database: %v", err)
+		log.Error(nil, "Failed to connect to the database: %v", err)
+		return err
 	}
 	err = DB.AutoMigrate(&User{}, &Calendar{}, &Event{}, &UserTokens{})
 
 	if err != nil {
-		log.Fatal("Failed to migrate database schema:", err)
+		log.Error(nil, "Failed to migrate database schema: %v", err)
+		return err
 	}
 
 	err = seedUsers(DB)
 	if err != nil {
-		log.Fatal("Failed to migrate database schema:", err)
+		log.Error(nil, "Failed to migrate database schema: %v", err)
+		return err
 	}
 
 	log.Println("Database migration completed.")
-}
-
-func seedUsers(DB *gorm.DB) error {
-	users := []User{
-		{Email: "jane@test.com", PasswordHash: "test"},
-		{Email: "john@test.com", PasswordHash: "test"},
-	}
-
-	for _, user := range users {
-		if err := saveUserIgnoringUniqueConstraint(DB, &user); err != nil {
-			log.Printf("Error seeding user: %v\n", err)
-			return err
-		}
-	}
-
 	return nil
 }
 
-func saveUserIgnoringUniqueConstraint(DB *gorm.DB, user *User) error {
+func seedUsers(DB *gorm.DB) error {
+
+	return DB.Transaction(func(tx *gorm.DB) error {
+		users := []User{
+			{Email: "jane@test.com", PasswordHash: "test"},
+			{Email: "john@test.com", PasswordHash: "test"},
+		}
+
+		for _, user := range users {
+			if err := upsertUser(DB, &user); err != nil {
+				logger.GetInstance().Info(nil, "Error seeding user: %v\n", err)
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+func upsertUser(DB *gorm.DB, user *User) error {
 	err := DB.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "email"}},
 		DoNothing: true,

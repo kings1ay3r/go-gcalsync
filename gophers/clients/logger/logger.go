@@ -45,6 +45,8 @@ func NewLogger() *Logger {
 	return &Logger{log}
 }
 
+// TODO: Implement structured logger
+
 // Info logs an informational message
 func (l *Logger) Info(ctx context.Context, msg string, args ...interface{}) {
 	l.WithFields(logrus.Fields{}).Info(fmt.Sprintf(msg, args...))
