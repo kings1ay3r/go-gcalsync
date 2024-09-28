@@ -5,15 +5,17 @@ import (
 	"net/http"
 )
 
-// ResponseMiddleware wraps a handler to standardize the JSON response
-func ResponseMiddleware(process func(w http.ResponseWriter, r *http.Request) (interface{}, error)) http.Handler {
+// APIMiddleware wraps a handler to standardize the JSON response
+func APIMiddleware(process func(w http.ResponseWriter, r *http.Request) (interface{}, error)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Create a custom ResponseWriter to capture the response
+
+		// Create a custom Writer to capture the response
 		rw := NewResponseWriter(w)
-		resp, err := process(w, r)
+		resp, err := process(w, r.WithContext(r.Context()))
 
 		// Err Response
 		if err != nil {
+			// TODO: Translate errors into http Errors
 			code := getErrCode(err)
 			res := struct {
 				Status  string `json:"status"`
@@ -33,7 +35,6 @@ func ResponseMiddleware(process func(w http.ResponseWriter, r *http.Request) (in
 			return
 		}
 
-		// Succesful Response
 		res := struct {
 			Status string      `json:"status"`
 			Data   interface{} `json:"data,omitempty"`
@@ -52,22 +53,22 @@ func ResponseMiddleware(process func(w http.ResponseWriter, r *http.Request) (in
 	})
 }
 
-// ResponseWriter is a custom ResponseWriter that captures the response body
-type ResponseWriter struct {
+// Writer is a custom Writer that captures the response body
+type Writer struct {
 	http.ResponseWriter
 	StatusCode int
 	Body       interface{}
 }
 
-// NewResponseWriter creates a new instance of ResponseWriter
-func NewResponseWriter(w http.ResponseWriter) *ResponseWriter {
-	return &ResponseWriter{
+// NewResponseWriter creates a new instance of Writer
+func NewResponseWriter(w http.ResponseWriter) *Writer {
+	return &Writer{
 		ResponseWriter: w,
 		StatusCode:     http.StatusOK,
 		Body:           nil,
 	}
 }
 
-func getErrCode(err error) int {
+func getErrCode(_ error) int {
 	return 500
 }

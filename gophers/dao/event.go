@@ -1,6 +1,8 @@
 package dao
 
-import "time"
+import (
+	"time"
+)
 
 type Event struct {
 	ID          uint     `gorm:"primaryKey"`
