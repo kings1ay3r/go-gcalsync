@@ -3,8 +3,10 @@ package logger
 import (
 	"context"
 	"fmt"
+	"gorm.io/gorm/logger"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -25,7 +27,7 @@ func GetInstance() *Logger {
 	once.Do(func() {
 		instance = NewLogger() // Initialize the singleton instance using NewLogger
 	})
-	return instance // Return the singleton instance
+	return instance
 }
 
 // NewLogger ...
@@ -65,4 +67,13 @@ func (l *Logger) Warn(ctx context.Context, msg string, args ...interface{}) {
 func (l *Logger) Debug(ctx context.Context, msg string, args ...interface{}) {
 	l.WithFields(logrus.Fields{}).Debug(fmt.Sprintf(msg, args...))
 	//l.WithFields(logrus.Fields{"context": ctx}).Debug(fmt.Sprintf(msg, args...))
+}
+
+// Trace TODO: Implement Tracer. Currently implementing structure to satisfy interface
+func (l *Logger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
+}
+
+// LogMode TODO: Implement this. Currently implementing wrapper to satisfy interface
+func (l *Logger) LogMode(level logger.LogLevel) logger.Interface {
+	return NewLogger()
 }

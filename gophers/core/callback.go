@@ -46,14 +46,15 @@ func (c *calendarClient) InsertCalendars(ctx context.Context, code string) error
 		dbCalendars = append(dbCalendars, dbCalendar)
 	}
 	logger.GetInstance().Info(ctx, "Logging %v events across %v calendars", eventLength, len(dbCalendars))
-	go c.insertInBackground(ctx, err, dbCalendars)
+
+	go c.insertInBackground(ctx, currUserID, dbCalendars)
 
 	return nil
 }
 
-func (c *calendarClient) insertInBackground(ctx context.Context, err error, dbCalendars []*dao.CalendarData) {
-	// FIXME: Get and insert current user from ctx
-	err = c.dao.SaveUserCalendarData(ctx, 1, dbCalendars)
+func (c *calendarClient) insertInBackground(ctx context.Context, userID int, dbCalendars []*dao.CalendarData) {
+	// TODO: Ensure Semaphore lock to avoid issues with concurrency
+	err := c.dao.SaveUserCalendarData(ctx, userID, dbCalendars)
 	if err != nil {
 		logger.GetInstance().Error(ctx, "unable to insert calendar list: %v", err)
 	}

@@ -9,13 +9,13 @@ import (
 )
 
 // SaveUserCalendarData saves the user’s calendar and associated events in a single transaction.
-func (d *dao) SaveUserCalendarData(ctx context.Context, userID uint, calendars []*CalendarData) error {
+func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []*CalendarData) error {
 	log := logger.GetInstance()
-	tx := d.DB.Begin() // Start a new transaction
+	tx := d.DB.Begin()
 
 	defer func() {
 		if r := recover(); r != nil {
-			tx.Rollback() // Rollback the transaction if there is a panic
+			tx.Rollback()
 		}
 	}()
 
@@ -33,7 +33,7 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID uint, calendars [
 			calendar = Calendar{
 				CalendarID: calendarData.CalendarID,
 				Name:       calendarData.Name,
-				UserID:     userID,
+				UserID:     uint(userID),
 				CreatedAt:  time.Now(),
 				UpdatedAt:  time.Now(),
 			}
@@ -42,15 +42,13 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID uint, calendars [
 				log.Error(ctx, "save user calendar data error: %v", err)
 				return err
 			}
-			log.Info(ctx, "save user calendar data: %v", calendar)
+			log.Info(ctx, "save user calendar data: %v", calendar.ID)
 		} else {
 			log.Info(ctx, "Calendar Exists: %v", calendar.CalendarID)
 		}
 
-		// Handle events
 		for _, eventData := range calendarData.Events {
 			var event Event
-			// Check if the event already exists
 			err = tx.Where("calendar_id = ? AND event_id = ?", calendar.ID, eventData.EventID).First(&event).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				tx.Rollback()
@@ -59,7 +57,6 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID uint, calendars [
 			}
 
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				// Event does not exist, create a new one
 				event = Event{
 					CalendarID: calendar.ID,
 					EventID:    eventData.EventID,
@@ -74,9 +71,8 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID uint, calendars [
 					log.Error(ctx, "save user calendar event error: %v", err)
 					return err
 				}
-				log.Info(ctx, "Event created: %v", event)
+				log.Info(ctx, "Event created: %v", event.ID)
 			} else {
-				// Optionally, update existing event if needed
 				event.Summary = eventData.Name
 				event.StartTime = eventData.StartTime
 				event.EndTime = eventData.EndTime
@@ -86,12 +82,12 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID uint, calendars [
 					log.Error(ctx, "save user calendar event error: %v", err)
 					return err
 				}
-				log.Info(ctx, "Event updated: %v", event)
+				log.Info(ctx, "Event updated: %v", event.ID)
 			}
 		}
 	}
 
-	return tx.Commit().Error // Commit the transaction
+	return tx.Commit().Error
 }
 
 // CalendarData holds the data for a calendar and its associated events.

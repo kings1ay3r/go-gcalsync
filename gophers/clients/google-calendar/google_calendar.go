@@ -7,6 +7,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
+	"net/http"
 	"net/url"
 	"os"
 )
@@ -15,15 +16,35 @@ import (
 //
 //go:generate mockery --name=GoogleCalendar --dir=./ --output=mocks --outpkg=mocks
 type GoogleCalendar interface {
-	FetchCalendars(ctx context.Context, userID int, code string) ([]*calendar.CalendarListEntry, error)
-	FetchEventsWithCode(ctx context.Context, userID int, code string, calendarID string) ([]*calendar.Event, error)
-	FetchEventsWithUserID(ctx context.Context, userID int, calendarID string) ([]*calendar.Event, error)
-	GetAuthCodeURL(ctx context.Context, userToken string) string
+	FetchCalendars(context.Context, int, string) ([]*calendar.CalendarListEntry, error)
+	FetchEventsWithCode(context.Context, int, string, string) ([]*calendar.Event, error)
+	FetchEventsWithUserID(context.Context, int, string) ([]*calendar.Event, error)
+	GetAuthCodeURL(context.Context, string) string
+}
+
+//go:generate mockery --name=OAuthConfig --dir=./ --output=mocks --outpkg=mocks
+type OAuthConfig interface {
+	AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string
+	Exchange(ctx context.Context, code string) (*oauth2.Token, error)
+	TokenSource(ctx context.Context, t *oauth2.Token) oauth2.TokenSource
+}
+
+//go:generate mockery --name=CalendarService --dir=./ --output=mocks --outpkg=mocks
+type CalendarService interface {
+	ListEvents(context.Context, string) (*calendar.Events, error)
+	ListCalendars(context.Context) (*calendar.CalendarList, error)
+	NewService(context.Context, *http.Client) error
+}
+
+//go:generate mockery --name=TokenSource --dir=./ --output=mocks --outpkg=mocks
+type TokenSource interface {
+	Token() (*oauth2.Token, error)
 }
 
 type googleCalendar struct {
-	config *oauth2.Config
-	dao    dao.DAO
+	config          OAuthConfig
+	dao             dao.DAO
+	calendarService CalendarService
 }
 
 // New initializes a GoogleCalendar instance with the DAO.
@@ -44,8 +65,9 @@ func New() (GoogleCalendar, error) {
 	}
 
 	return &googleCalendar{
-		config: config,
-		dao:    daoInstance, // Pass DAO instance here
+		config:          &OAuthConfigImpl{config},
+		dao:             daoInstance,
+		calendarService: &googleCalendarService{},
 	}, nil
 }
 

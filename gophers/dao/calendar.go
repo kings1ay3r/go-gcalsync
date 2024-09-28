@@ -11,9 +11,9 @@ type Calendar struct {
 	ID         uint   `gorm:"primaryKey"`
 	CalendarID string `gorm:"not null;uniqueIndex:idx_user_calendar"` // Ensuring unique constraint with userID
 	Name       string
-	UserID     uint    `gorm:"not null"`                                           // Foreign key to User
-	User       User    `gorm:"constraint:OnDelete:CASCADE;"`                       // Automatically delete calendar if a user is deleted
-	Events     []Event `gorm:"foreignKey:CalendarID;constraint:OnDelete:CASCADE;"` // Automatically delete events if a calendar is deleted
+	UserID     uint    `gorm:"not null;uniqueIndex:idx_user_calendar"` // Foreign key to User
+	User       User    `gorm:"constraint:OnDelete:CASCADE;"`
+	Events     []Event `gorm:"foreignKey:CalendarID;constraint:OnDelete:CASCADE;"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/calendar/v3"
-	"google.golang.org/api/option"
 )
 
 // fetchEvents fetches events for a given calendar using the provided token.
@@ -25,12 +24,12 @@ func (g *googleCalendar) fetchEvents(ctx context.Context, calendarID string, tok
 		}
 	}
 
-	srv, err := calendar.NewService(ctx, option.WithHTTPClient(client))
+	err = g.calendarService.NewService(ctx, client)
 	if err != nil {
 		return nil, err
 	}
 
-	eventsList, err := srv.Events.List(calendarID).Do()
+	eventsList, err := g.calendarService.ListEvents(ctx, calendarID)
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"gcalsync/gophers/clients/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -14,7 +15,9 @@ var DB *gorm.DB
 func InitDB() {
 	dsn := os.Getenv("DATABASE_URL")
 	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.GetInstance(),
+	})
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}

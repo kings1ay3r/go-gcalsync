@@ -1,0 +1,8 @@
+### List Events
+GET {{serverurl}}/events
+# Authorization: Bearer hX23F4wh
+
+
+### Connect Calendar
+GET {{serverurl}}/connect
+# Authorization: Bearer hX23F4wh
