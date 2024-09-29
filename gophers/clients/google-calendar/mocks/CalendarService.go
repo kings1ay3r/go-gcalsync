@@ -17,9 +17,9 @@ type CalendarService struct {
 	mock.Mock
 }
 
-// ListCalendars provides a mock function with given fields: _a0
-func (_m *CalendarService) ListCalendars(_a0 context.Context) (*calendar.CalendarList, error) {
-	ret := _m.Called(_a0)
+// ListCalendars provides a mock function with given fields: _a0, _a1
+func (_m *CalendarService) ListCalendars(_a0 context.Context, _a1 *calendar.Service) (*calendar.CalendarList, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListCalendars")
@@ -27,48 +27,18 @@ func (_m *CalendarService) ListCalendars(_a0 context.Context) (*calendar.Calenda
 
 	var r0 *calendar.CalendarList
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*calendar.CalendarList, error)); ok {
-		return rf(_a0)
+	if rf, ok := ret.Get(0).(func(context.Context, *calendar.Service) (*calendar.CalendarList, error)); ok {
+		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *calendar.CalendarList); ok {
-		r0 = rf(_a0)
+	if rf, ok := ret.Get(0).(func(context.Context, *calendar.Service) *calendar.CalendarList); ok {
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*calendar.CalendarList)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(_a0)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ListEvents provides a mock function with given fields: _a0, _a1
-func (_m *CalendarService) ListEvents(_a0 context.Context, _a1 string) (*calendar.Events, error) {
-	ret := _m.Called(_a0, _a1)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListEvents")
-	}
-
-	var r0 *calendar.Events
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*calendar.Events, error)); ok {
-		return rf(_a0, _a1)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *calendar.Events); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*calendar.Events)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *calendar.Service) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
@@ -77,22 +47,64 @@ func (_m *CalendarService) ListEvents(_a0 context.Context, _a1 string) (*calenda
 	return r0, r1
 }
 
+// ListEvents provides a mock function with given fields: _a0, _a1, _a2
+func (_m *CalendarService) ListEvents(_a0 context.Context, _a1 *calendar.Service, _a2 string) (*calendar.Events, error) {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListEvents")
+	}
+
+	var r0 *calendar.Events
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *calendar.Service, string) (*calendar.Events, error)); ok {
+		return rf(_a0, _a1, _a2)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *calendar.Service, string) *calendar.Events); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*calendar.Events)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *calendar.Service, string) error); ok {
+		r1 = rf(_a0, _a1, _a2)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewService provides a mock function with given fields: _a0, _a1
-func (_m *CalendarService) NewService(_a0 context.Context, _a1 *http.Client) error {
+func (_m *CalendarService) NewService(_a0 context.Context, _a1 *http.Client) (*calendar.Service, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for NewService")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *http.Client) error); ok {
+	var r0 *calendar.Service
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *http.Client) (*calendar.Service, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *http.Client) *calendar.Service); ok {
 		r0 = rf(_a0, _a1)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*calendar.Service)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, *http.Client) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewCalendarService creates a new instance of CalendarService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

@@ -16,7 +16,7 @@ type GoogleCalendar struct {
 }
 
 // FetchCalendars provides a mock function with given fields: _a0, _a1, _a2
-func (_m *GoogleCalendar) FetchCalendars(_a0 context.Context, _a1 int, _a2 string) ([]*calendar.CalendarListEntry, error) {
+func (_m *GoogleCalendar) FetchCalendars(_a0 context.Context, _a1 int, _a2 string) ([]*calendar.CalendarListEntry, string, error) {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -24,8 +24,9 @@ func (_m *GoogleCalendar) FetchCalendars(_a0 context.Context, _a1 int, _a2 strin
 	}
 
 	var r0 []*calendar.CalendarListEntry
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int, string) ([]*calendar.CalendarListEntry, error)); ok {
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, int, string) ([]*calendar.CalendarListEntry, string, error)); ok {
 		return rf(_a0, _a1, _a2)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, int, string) []*calendar.CalendarListEntry); ok {
@@ -36,8 +37,44 @@ func (_m *GoogleCalendar) FetchCalendars(_a0 context.Context, _a1 int, _a2 strin
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, int, string) string); ok {
 		r1 = rf(_a0, _a1, _a2)
+	} else {
+		r1 = ret.Get(1).(string)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, int, string) error); ok {
+		r2 = rf(_a0, _a1, _a2)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// FetchEventsWithCode provides a mock function with given fields: _a0, _a1, _a2, _a3, _a4
+func (_m *GoogleCalendar) FetchEventsWithCode(_a0 context.Context, _a1 int, _a2 string, _a3 string, _a4 string) ([]*calendar.Event, error) {
+	ret := _m.Called(_a0, _a1, _a2, _a3, _a4)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchEventsWithCode")
+	}
+
+	var r0 []*calendar.Event
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int, string, string, string) ([]*calendar.Event, error)); ok {
+		return rf(_a0, _a1, _a2, _a3, _a4)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, string, string, string) []*calendar.Event); ok {
+		r0 = rf(_a0, _a1, _a2, _a3, _a4)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*calendar.Event)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, string, string, string) error); ok {
+		r1 = rf(_a0, _a1, _a2, _a3, _a4)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -45,12 +82,12 @@ func (_m *GoogleCalendar) FetchCalendars(_a0 context.Context, _a1 int, _a2 strin
 	return r0, r1
 }
 
-// FetchEventsWithCode provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *GoogleCalendar) FetchEventsWithCode(_a0 context.Context, _a1 int, _a2 string, _a3 string) ([]*calendar.Event, error) {
+// FetchEventsWithUserID provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *GoogleCalendar) FetchEventsWithUserID(_a0 context.Context, _a1 int, _a2 string, _a3 string) ([]*calendar.Event, error) {
 	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	if len(ret) == 0 {
-		panic("no return value specified for FetchEventsWithCode")
+		panic("no return value specified for FetchEventsWithUserID")
 	}
 
 	var r0 []*calendar.Event
@@ -68,36 +105,6 @@ func (_m *GoogleCalendar) FetchEventsWithCode(_a0 context.Context, _a1 int, _a2 
 
 	if rf, ok := ret.Get(1).(func(context.Context, int, string, string) error); ok {
 		r1 = rf(_a0, _a1, _a2, _a3)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// FetchEventsWithUserID provides a mock function with given fields: _a0, _a1, _a2
-func (_m *GoogleCalendar) FetchEventsWithUserID(_a0 context.Context, _a1 int, _a2 string) ([]*calendar.Event, error) {
-	ret := _m.Called(_a0, _a1, _a2)
-
-	if len(ret) == 0 {
-		panic("no return value specified for FetchEventsWithUserID")
-	}
-
-	var r0 []*calendar.Event
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int, string) ([]*calendar.Event, error)); ok {
-		return rf(_a0, _a1, _a2)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, int, string) []*calendar.Event); ok {
-		r0 = rf(_a0, _a1, _a2)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*calendar.Event)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, int, string) error); ok {
-		r1 = rf(_a0, _a1, _a2)
 	} else {
 		r1 = ret.Error(1)
 	}

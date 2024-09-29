@@ -28,8 +28,7 @@ func TestInsertCalendars(t *testing.T) {
 		mockCalendars := []*calendar.CalendarListEntry{
 			{Id: "cal1", Summary: "Test Calendar 1"},
 		}
-		mockGoogleCalClient.On("FetchCalendars", anything, anything, anything).Return(mockCalendars, nil)
-		mockDAO.On("SaveUserCalendarData", anything, anything, anything).Return(nil)
+
 		mockEvents := []*calendar.Event{
 			{
 				Id:      "event1",
@@ -38,7 +37,10 @@ func TestInsertCalendars(t *testing.T) {
 				End:     &calendar.EventDateTime{DateTime: "2023-09-28T11:00:00Z"},
 			},
 		}
-		mockGoogleCalClient.On("FetchEventsWithUserID", anything, anything, anything).Return(mockEvents, nil)
+
+		mockGoogleCalClient.On("FetchCalendars", anything, anything, anything).Return(mockCalendars, "", nil)
+		mockDAO.On("SaveUserCalendarData", anything, anything, anything).Return(nil)
+		mockGoogleCalClient.On("FetchEventsWithUserID", anything, anything, anything, anything).Return(mockEvents, nil)
 
 		err := calendarClient.InsertCalendars(ctx, "mock-code")
 
@@ -68,7 +70,7 @@ func TestInsertCalendars(t *testing.T) {
 			googleCalClient: mockGoogleCalClient,
 			dao:             mockDAO,
 		}
-		mockGoogleCalClient.On("FetchCalendars", anything, anything, anything).Return(nil, fmt.Errorf("unable to fetch calendars"))
+		mockGoogleCalClient.On("FetchCalendars", anything, anything, anything).Return(nil, "", fmt.Errorf("unable to fetch calendars"))
 
 		err := calendarClient.InsertCalendars(ctx, "mock-code")
 
@@ -88,8 +90,8 @@ func TestInsertCalendars(t *testing.T) {
 		mockCalendars := []*calendar.CalendarListEntry{
 			{Id: "cal1", Summary: "Test Calendar 1"},
 		}
-		mockGoogleCalClient.On("FetchCalendars", anything, anything, anything).Return(mockCalendars, nil)
-		mockGoogleCalClient.On("FetchEventsWithUserID", anything, anything, "cal1").Return(nil, fmt.Errorf("unable to fetch events"))
+		mockGoogleCalClient.On("FetchCalendars", anything, anything, anything).Return(mockCalendars, "", nil)
+		mockGoogleCalClient.On("FetchEventsWithUserID", anything, anything, anything, anything).Return(nil, fmt.Errorf("unable to fetch events"))
 		mockDAO.On("SaveUserCalendarData", anything, anything, anything).Return(nil)
 
 		err := calendarClient.InsertCalendars(ctx, "mock-code")
@@ -120,9 +122,9 @@ func TestInsertCalendars(t *testing.T) {
 				End:     &calendar.EventDateTime{DateTime: "2023-09-28T11:00:00Z"},
 			},
 		}
-		mockGoogleCalClient.On("FetchCalendars", mock.Anything, mock.Anything, mock.Anything).Return(mockCalendars, nil)
-		mockGoogleCalClient.On("FetchEventsWithUserID", mock.Anything, mock.Anything, "cal1").Return(mockEvents, nil)
-		mockDAO.On("SaveUserCalendarData", mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("unable to save calendar data"))
+		mockGoogleCalClient.On("FetchCalendars", anything, anything, anything).Return(mockCalendars, "", nil)
+		mockGoogleCalClient.On("FetchEventsWithUserID", anything, anything, anything, anything).Return(mockEvents, nil)
+		mockDAO.On("SaveUserCalendarData", anything, anything, anything).Return(fmt.Errorf("unable to save calendar data"))
 
 		err := calendarClient.InsertCalendars(ctx, "mock-code")
 
@@ -145,7 +147,6 @@ func TestInsertCalendars(t *testing.T) {
 		mockCalendars := []*calendar.CalendarListEntry{
 			{Id: "cal1", Summary: "Test Calendar 1"},
 		}
-		mockGoogleCalClient.On("FetchCalendars", anything, anything, anything).Return(mockCalendars, nil)
 		mockEvents := []*calendar.Event{
 			{
 				Id:      "event1",
@@ -154,7 +155,8 @@ func TestInsertCalendars(t *testing.T) {
 				End:     &calendar.EventDateTime{DateTime: "2023-09-28T11:00:00Z"},
 			},
 		}
-		mockGoogleCalClient.On("FetchEventsWithUserID", anything, anything, anything).Return(mockEvents, nil)
+		mockGoogleCalClient.On("FetchCalendars", anything, anything, anything).Return(mockCalendars, "", nil)
+		mockGoogleCalClient.On("FetchEventsWithUserID", anything, anything, anything, anything).Return(mockEvents, nil)
 		mockDAO.On("SaveUserCalendarData", anything, anything, anything).Return(fmt.Errorf("database error"))
 
 		err := calendarClient.InsertCalendars(ctx, "mock-code")

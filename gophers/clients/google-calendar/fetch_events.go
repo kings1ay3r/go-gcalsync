@@ -8,31 +8,18 @@ import (
 )
 
 // fetchEvents fetches events for a given calendar using the provided token.
-func (g *googleCalendar) fetchEvents(ctx context.Context, calendarID string, token *oauth2.Token) ([]*calendar.Event, error) {
-	tokenSource := g.config.TokenSource(ctx, token)
-	client := oauth2.NewClient(ctx, tokenSource)
+func (g *googleCalendar) fetchEvents(ctx context.Context, calendarID string, token *oauth2.Token, userID int, accountID string) ([]*calendar.Event, error) {
 
-	// Refresh the token and save if necessary.
-	newToken, err := tokenSource.Token()
+	client, err := g.getOAuthClientForUser(ctx, token, userID, accountID)
 	if err != nil {
 		return nil, err
 	}
-	if newToken.AccessToken != token.AccessToken || newToken.RefreshToken != token.RefreshToken || newToken.Expiry != token.Expiry {
-		userID, ok := ctx.Value("currentUser").(int)
-		if !ok {
-			return nil, fmt.Errorf("could not get current user id")
-		}
-		if err := g.dao.SaveUserTokens(ctx, userID, newToken.AccessToken, newToken.RefreshToken, newToken.Expiry); err != nil {
-			return nil, err
-		}
-	}
-
-	err = g.calendarService.NewService(ctx, client)
+	srv, err := g.calendarService.NewService(ctx, client)
 	if err != nil {
 		return nil, err
 	}
 
-	eventsList, err := g.calendarService.ListEvents(ctx, calendarID)
+	eventsList, err := g.calendarService.ListEvents(ctx, srv, calendarID)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +28,7 @@ func (g *googleCalendar) fetchEvents(ctx context.Context, calendarID string, tok
 }
 
 // FetchEventsWithCode exchanges the authorization code for a token, saves the token to the database, and fetches events.
-func (g *googleCalendar) FetchEventsWithCode(ctx context.Context, userID int, code string, calendarID string) ([]*calendar.Event, error) {
+func (g *googleCalendar) FetchEventsWithCode(ctx context.Context, userID int, code string, accountID string, calendarID string) ([]*calendar.Event, error) {
 	// Exchange the authorization code for an access token.
 	token, err := g.config.Exchange(ctx, code)
 	if err != nil {
@@ -49,22 +36,15 @@ func (g *googleCalendar) FetchEventsWithCode(ctx context.Context, userID int, co
 	}
 
 	// Save the token to the database.
-	if err := g.dao.SaveUserTokens(ctx, userID, token.AccessToken, token.RefreshToken, token.Expiry); err != nil {
+	if err := g.dao.SaveUserTokens(ctx, userID, accountID, token.AccessToken, token.RefreshToken, token.Expiry); err != nil {
 		return nil, fmt.Errorf("failed to save user tokens: %w", err)
 	}
 
 	// Fetch events using the saved token.
-	return g.fetchEvents(ctx, calendarID, token)
+	return g.fetchEvents(ctx, calendarID, token, userID, accountID)
 }
 
 // FetchEventsWithUserID retrieves tokens from the database and fetches events.
-func (g *googleCalendar) FetchEventsWithUserID(ctx context.Context, userID int, calendarID string) ([]*calendar.Event, error) {
-	// Retrieve the tokens from the database.
-	token, err := g.dao.GetUserTokens(ctx, userID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get user tokens: %w", err)
-	}
-
-	// Fetch events using the retrieved token.
-	return g.fetchEvents(ctx, calendarID, token)
+func (g *googleCalendar) FetchEventsWithUserID(ctx context.Context, userID int, accountID string, calendarID string) ([]*calendar.Event, error) {
+	return g.fetchEvents(ctx, calendarID, nil, userID, accountID)
 }

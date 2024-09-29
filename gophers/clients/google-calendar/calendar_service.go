@@ -8,22 +8,22 @@ import (
 )
 
 type googleCalendarService struct {
-	srv *calendar.Service
 }
 
-func (g *googleCalendarService) NewService(ctx context.Context, client *http.Client) error {
+// TODO: Implement Retries / Fault accommodation for requests
+
+func (g *googleCalendarService) NewService(ctx context.Context, client *http.Client) (*calendar.Service, error) {
 	srv, err := calendar.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
-		return err
+		return srv, err
 	}
-	g.srv = srv
-	return nil
+	return srv, nil
 }
 
-func (g *googleCalendarService) ListEvents(ctx context.Context, calendarID string) (*calendar.Events, error) {
-	return g.srv.Events.List(calendarID).Do()
+func (g *googleCalendarService) ListEvents(ctx context.Context, srv *calendar.Service, calendarID string) (*calendar.Events, error) {
+	return srv.Events.List(calendarID).Do()
 }
 
-func (g *googleCalendarService) ListCalendars(ctx context.Context) (*calendar.CalendarList, error) {
-	return g.srv.CalendarList.List().Do()
+func (g *googleCalendarService) ListCalendars(ctx context.Context, srv *calendar.Service) (*calendar.CalendarList, error) {
+	return srv.CalendarList.List().Do()
 }

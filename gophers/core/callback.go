@@ -19,7 +19,8 @@ func (c *calendarClient) InsertCalendars(ctx context.Context, code string) error
 		return err
 	}
 	currUserID := currUser.ID
-	calendars, err := c.googleCalClient.FetchCalendars(ctx, currUserID, code)
+	calendars, accountID, err := c.googleCalClient.FetchCalendars(ctx, currUserID, code)
+
 	if err != nil {
 		return fmt.Errorf("unable to retrieve calendar list: %w", err)
 	}
@@ -30,8 +31,9 @@ func (c *calendarClient) InsertCalendars(ctx context.Context, code string) error
 		dbCalendar := &dao.CalendarData{
 			CalendarID: calendarEntry.Id,
 			Name:       calendarEntry.Summary,
+			AccountID:  accountID,
 		}
-		events, err := c.googleCalClient.FetchEventsWithUserID(ctx, currUserID, calendarEntry.Id)
+		events, err := c.googleCalClient.FetchEventsWithUserID(ctx, currUserID, accountID, calendarEntry.Id)
 
 		if err != nil {
 			// TODO: Implement a dead letter queue for error handling
