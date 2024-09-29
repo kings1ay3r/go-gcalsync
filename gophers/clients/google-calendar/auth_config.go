@@ -2,11 +2,32 @@ package googlecalendar
 
 import (
 	"context"
+	"fmt"
 	"golang.org/x/oauth2"
+	"google.golang.org/api/idtoken"
 )
 
 type OAuthConfigImpl struct {
 	*oauth2.Config
+}
+
+func (o *OAuthConfigImpl) ClientID() string {
+	return o.Config.ClientID
+}
+
+func (o *OAuthConfigImpl) GetGoogleAccountID(ctx context.Context, idToken string) (string, error) {
+
+	payload, err := idtoken.Validate(ctx, idToken, o.Config.ClientID)
+	if err != nil {
+		return "", fmt.Errorf("failed to validate ID token: %w", err)
+	}
+
+	googleAccountID, ok := payload.Claims["sub"].(string)
+	if !ok {
+		return "", fmt.Errorf("Google Account ID (sub) not found in ID token")
+	}
+
+	return googleAccountID, nil
 }
 
 func (o *OAuthConfigImpl) AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string {

@@ -78,9 +78,9 @@ func (_m *DAO) GetUserCalendars(_a0 context.Context, _a1 int) ([]dao.Calendar, e
 	return r0, r1
 }
 
-// GetUserTokens provides a mock function with given fields: _a0, _a1
-func (_m *DAO) GetUserTokens(_a0 context.Context, _a1 int) (*oauth2.Token, error) {
-	ret := _m.Called(_a0, _a1)
+// GetUserTokens provides a mock function with given fields: _a0, _a1, _a2
+func (_m *DAO) GetUserTokens(_a0 context.Context, _a1 int, _a2 string) (*oauth2.Token, error) {
+	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserTokens")
@@ -88,19 +88,19 @@ func (_m *DAO) GetUserTokens(_a0 context.Context, _a1 int) (*oauth2.Token, error
 
 	var r0 *oauth2.Token
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int) (*oauth2.Token, error)); ok {
-		return rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(context.Context, int, string) (*oauth2.Token, error)); ok {
+		return rf(_a0, _a1, _a2)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int) *oauth2.Token); ok {
-		r0 = rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(context.Context, int, string) *oauth2.Token); ok {
+		r0 = rf(_a0, _a1, _a2)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*oauth2.Token)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
-		r1 = rf(_a0, _a1)
+	if rf, ok := ret.Get(1).(func(context.Context, int, string) error); ok {
+		r1 = rf(_a0, _a1, _a2)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -156,17 +156,17 @@ func (_m *DAO) SaveUserCalendarData(_a0 context.Context, _a1 int, _a2 []*dao.Cal
 	return r0
 }
 
-// SaveUserTokens provides a mock function with given fields: _a0, _a1, _a2, _a3, _a4
-func (_m *DAO) SaveUserTokens(_a0 context.Context, _a1 int, _a2 string, _a3 string, _a4 time.Time) error {
-	ret := _m.Called(_a0, _a1, _a2, _a3, _a4)
+// SaveUserTokens provides a mock function with given fields: _a0, _a1, _a2, _a3, _a4, _a5
+func (_m *DAO) SaveUserTokens(_a0 context.Context, _a1 int, _a2 string, _a3 string, _a4 string, _a5 time.Time) error {
+	ret := _m.Called(_a0, _a1, _a2, _a3, _a4, _a5)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SaveUserTokens")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, int, string, string, time.Time) error); ok {
-		r0 = rf(_a0, _a1, _a2, _a3, _a4)
+	if rf, ok := ret.Get(0).(func(context.Context, int, string, string, string, time.Time) error); ok {
+		r0 = rf(_a0, _a1, _a2, _a3, _a4, _a5)
 	} else {
 		r0 = ret.Error(0)
 	}

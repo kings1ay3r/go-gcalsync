@@ -11,15 +11,16 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 )
 
 // GoogleCalendar ...
 //
 //go:generate mockery --name=GoogleCalendar --dir=./ --output=mocks --outpkg=mocks
 type GoogleCalendar interface {
-	FetchCalendars(context.Context, int, string) ([]*calendar.CalendarListEntry, error)
-	FetchEventsWithCode(context.Context, int, string, string) ([]*calendar.Event, error)
-	FetchEventsWithUserID(context.Context, int, string) ([]*calendar.Event, error)
+	FetchCalendars(context.Context, int, string) ([]*calendar.CalendarListEntry, string, error)
+	FetchEventsWithCode(context.Context, int, string, string, string) ([]*calendar.Event, error)
+	FetchEventsWithUserID(context.Context, int, string, string) ([]*calendar.Event, error)
 	GetAuthCodeURL(context.Context, string) string
 }
 
@@ -28,13 +29,15 @@ type OAuthConfig interface {
 	AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) string
 	Exchange(ctx context.Context, code string) (*oauth2.Token, error)
 	TokenSource(ctx context.Context, t *oauth2.Token) oauth2.TokenSource
+	ClientID() string
+	GetGoogleAccountID(context.Context, string) (string, error)
 }
 
 //go:generate mockery --name=CalendarService --dir=./ --output=mocks --outpkg=mocks
 type CalendarService interface {
-	ListEvents(context.Context, string) (*calendar.Events, error)
-	ListCalendars(context.Context) (*calendar.CalendarList, error)
-	NewService(context.Context, *http.Client) error
+	ListEvents(context.Context, *calendar.Service, string) (*calendar.Events, error)
+	ListCalendars(context.Context, *calendar.Service) (*calendar.CalendarList, error)
+	NewService(context.Context, *http.Client) (*calendar.Service, error)
 }
 
 //go:generate mockery --name=TokenSource --dir=./ --output=mocks --outpkg=mocks
@@ -42,10 +45,13 @@ type TokenSource interface {
 	Token() (*oauth2.Token, error)
 }
 
+var config *oauth2.Config
+
 type googleCalendar struct {
 	config          OAuthConfig
 	dao             dao.DAO
 	calendarService CalendarService
+	clientCache     *ClientCache
 }
 
 // New initializes a GoogleCalendar instance with the DAO.
@@ -60,11 +66,11 @@ func New() (GoogleCalendar, error) {
 	if clientID == "" || clientSecret == "" || redirectURL == "" {
 		return nil, errors.New("GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, or GOOGLE_CALLBACK_URL not set")
 	}
-	config := &oauth2.Config{
+	config = &oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     google.Endpoint,
-		Scopes:       []string{calendar.CalendarScope},
+		Scopes:       []string{calendar.CalendarScope, "email", "profile"},
 		RedirectURL:  redirectURL,
 	}
 
@@ -72,6 +78,7 @@ func New() (GoogleCalendar, error) {
 		config:          &OAuthConfigImpl{config},
 		dao:             daoInstance,
 		calendarService: &googleCalendarService{},
+		clientCache:     NewClientCache(time.Hour - time.Minute*5), //Keeping expiry at 55 minutes, as google expiry is per hour
 	}, nil
 }
 

@@ -13,8 +13,8 @@ import (
 type DAO interface {
 	FindCalendarByCalendarID(context.Context, string) (*Calendar, error)
 	InsertCalendar(context.Context, Calendar) (*Calendar, error)
-	SaveUserTokens(context.Context, int, string, string, time.Time) error
-	GetUserTokens(context.Context, int) (*oauth2.Token, error)
+	SaveUserTokens(context.Context, int, string, string, string, time.Time) error
+	GetUserTokens(context.Context, int, string) (*oauth2.Token, error)
 	SaveUserCalendarData(context.Context, int, []*CalendarData) error
 	GetUserCalendars(context.Context, int) ([]Calendar, error)
 }

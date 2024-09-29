@@ -88,6 +88,7 @@ type CalendarData struct {
 	Name       string
 	CalendarID string
 	Events     []EventData
+	AccountID  string
 }
 
 // EventData holds the data for an event.
