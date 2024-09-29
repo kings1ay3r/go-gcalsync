@@ -78,7 +78,7 @@ func New() (GoogleCalendar, error) {
 		config:          &OAuthConfigImpl{config},
 		dao:             daoInstance,
 		calendarService: &googleCalendarService{},
-		clientCache:     NewClientCache(time.Hour - time.Minute*5), //Keeping expiry at 55 minutes, as google expiry is per hour
+		clientCache:     NewClientCache(time.Hour * 55), //Keeping expiry at 55 minutes, as google expiry is per hour
 	}, nil
 }
 

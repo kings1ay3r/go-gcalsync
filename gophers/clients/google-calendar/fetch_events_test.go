@@ -16,9 +16,11 @@ import (
 func TestFetchEvents(t *testing.T) {
 
 	calendarID := "calendar-id"
-
 	userID := 1
 	anything := mock.Anything
+	// TODO: Refactor other common fields to higher scope / DRY up using method
+	// TODO: DRY up assertions
+
 	t.Run("should fetch events successfully", func(t *testing.T) {
 		ctx := context.Background()
 
@@ -49,7 +51,6 @@ func TestFetchEvents(t *testing.T) {
 		mockCalendarService.On("NewService", anything, anything).Return(nil, nil)
 		mockDao.On("SaveUserTokens", ctx, anything, anything, anything, anything, anything).Return(nil)
 		mockCalendarService.On("ListEvents", anything, anything, anything).Return(eventList, nil)
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(mockToken, nil)
 
 		events, err := g.FetchEventsWithCode(ctx, userID, "code", calendarID, "google-account-id")
 
@@ -84,7 +85,6 @@ func TestFetchEvents(t *testing.T) {
 		mockconfig.On("TokenSource", anything, anything).Return(mockTokenSource, nil)
 		mockDao.On("SaveUserTokens", ctx, anything, anything, anything, anything, anything).Return(nil)
 		mockCalendarService.On("ListEvents", anything, anything, anything).Return(nil, errors.New("failed to fetch events"))
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(mockToken, nil)
 		mockCalendarService.On("NewService", anything, anything).Return(nil, nil)
 
 		events, err := g.FetchEventsWithCode(ctx, userID, "code", calendarID, "google-account-id")
@@ -119,7 +119,6 @@ func TestFetchEvents(t *testing.T) {
 		mockconfig.On("Exchange", anything, anything).Return(mockToken, nil)
 		mockconfig.On("TokenSource", anything, anything).Return(mockTokenSource, nil)
 		mockDao.On("SaveUserTokens", ctx, anything, anything, anything, anything, anything).Return(nil)
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(mockToken, nil)
 		mockCalendarService.On("NewService", anything, anything).Return(nil, errors.New("failed to init service"))
 
 		events, err := g.FetchEventsWithCode(ctx, userID, "code", calendarID, "google-account-id")
@@ -147,12 +146,11 @@ func TestFetchEvents(t *testing.T) {
 		mockToken := &oauth2.Token{
 			AccessToken:  "access-token",
 			RefreshToken: "refresh-token",
-			Expiry:       time.Now(),
+			Expiry:       time.Now().Add(-time.Hour),
 		}
 
 		mockconfig.On("Exchange", anything, anything).Return(mockToken, nil)
 		mockconfig.On("TokenSource", anything, anything).Return(mockTokenSource, nil)
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(mockToken, nil)
 		mockDao.On("SaveUserTokens", ctx, anything, anything, anything, anything, anything).Return(nil)
 		mockTokenSource.On("Token").Return(nil, errors.New("failed to refresh token"))
 
@@ -182,7 +180,7 @@ func TestFetchEvents(t *testing.T) {
 		mockToken := &oauth2.Token{
 			AccessToken:  "access-token",
 			RefreshToken: "refresh-token",
-			Expiry:       time.Now(),
+			Expiry:       time.Now().Add(-time.Hour),
 		}
 
 		mockconfig.On("Exchange", anything, anything).Return(mockToken, nil)

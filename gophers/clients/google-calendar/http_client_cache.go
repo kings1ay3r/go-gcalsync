@@ -31,7 +31,7 @@ func (c *ClientCache) Push(userID string, client *http.Client) {
 	defer c.mu.Unlock()
 
 	if c.expiry.Before(time.Now()) {
-		c.destroy()
+		c.reset()
 	}
 	c.clients[userID] = &Client{
 		httpClient: client,
@@ -44,7 +44,7 @@ func (c *ClientCache) Get(userID string) (*http.Client, bool) {
 	defer c.mu.RUnlock()
 
 	if c.expiry.Before(time.Now()) {
-		c.destroy()
+		c.reset()
 		return nil, false
 	}
 
@@ -55,6 +55,7 @@ func (c *ClientCache) Get(userID string) (*http.Client, bool) {
 	return client.httpClient, true
 }
 
-func (c *ClientCache) destroy() {
+func (c *ClientCache) reset() {
 	c.clients = make(map[string]*Client)
+	c.expiry = time.Now().Add(c.lifetime)
 }

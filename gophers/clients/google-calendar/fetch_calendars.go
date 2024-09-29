@@ -15,7 +15,7 @@ func (g *googleCalendar) FetchCalendars(ctx context.Context, userID int, code st
 
 	idToken, ok := token.Extra("id_token").(string)
 	if !ok {
-		return nil, "", fmt.Errorf("no id_token field in oauth2 token: %w", err)
+		return nil, "", fmt.Errorf("no id_token field in oauth2 token")
 	}
 	googleID, err := g.config.GetGoogleAccountID(ctx, idToken)
 	if err != nil {

@@ -10,10 +10,12 @@ import (
 
 func (g *googleCalendar) getOAuthClientForUser(ctx context.Context, token *oauth2.Token, userID int, accountID string) (*http.Client, error) {
 
+	// There is an assumption here that tokens expire in one hour
+	//  and cache expired in less than one hour. This prevents stale clients in cache.
 	if client, ok := g.clientCache.Get(accountID); ok {
 		return client, nil
 	}
-	if token == nil || token.AccessToken != "" || token.RefreshToken != "" {
+	if token == nil || token.AccessToken == "" || token.RefreshToken == "" {
 		var err error
 		token, err = g.dao.GetUserTokens(ctx, userID, accountID)
 		if err != nil {
@@ -21,7 +23,7 @@ func (g *googleCalendar) getOAuthClientForUser(ctx context.Context, token *oauth
 		}
 	}
 
-	if token.Expiry.Sub(time.Now()) < 30*time.Second {
+	if token.Expiry.IsZero() || token.Expiry.Sub(time.Now()) < 30*time.Second {
 		tokenSource := g.config.TokenSource(ctx, token)
 		newToken, err := tokenSource.Token()
 		if err != nil {

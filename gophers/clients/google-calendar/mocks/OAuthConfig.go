@@ -40,6 +40,24 @@ func (_m *OAuthConfig) AuthCodeURL(state string, opts ...oauth2.AuthCodeOption) 
 	return r0
 }
 
+// ClientID provides a mock function with given fields:
+func (_m *OAuthConfig) ClientID() string {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ClientID")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // Exchange provides a mock function with given fields: ctx, code
 func (_m *OAuthConfig) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
 	ret := _m.Called(ctx, code)
@@ -63,6 +81,34 @@ func (_m *OAuthConfig) Exchange(ctx context.Context, code string) (*oauth2.Token
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = rf(ctx, code)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetGoogleAccountID provides a mock function with given fields: _a0, _a1
+func (_m *OAuthConfig) GetGoogleAccountID(_a0 context.Context, _a1 string) (string, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGoogleAccountID")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}

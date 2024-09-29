@@ -59,7 +59,6 @@ func TestFetchCalendars(t *testing.T) {
 		mockconfig.On("TokenSource", anything, anything).Return(mockTokenSource, nil)
 		mockconfig.On("GetGoogleAccountID", anything, anything).Return(mockClientID, nil)
 		mockCalendarService.On("NewService", anything, anything).Return(nil, nil)
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(mockToken, nil)
 
 		calendars, accountID, err := g.FetchCalendars(ctx, userID, code)
 
@@ -139,7 +138,6 @@ func TestFetchCalendars(t *testing.T) {
 		mockconfig.On("Exchange", anything, anything).Return(mockToken, nil)
 		mockconfig.On("TokenSource", anything, mockToken).Return(mockTokenSource, nil)
 		mockconfig.On("GetGoogleAccountID", anything, anything).Return(mockClientID, nil)
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(mockToken, nil)
 		mockCalendarService.On("NewService", anything, anything).Return(nil, errors.New("failed to create service"))
 
 		calendars, _, err := g.FetchCalendars(ctx, userID, code)
@@ -183,7 +181,6 @@ func TestFetchCalendars(t *testing.T) {
 		mockconfig.On("GetGoogleAccountID", anything, anything).Return(mockClientID, nil)
 		mockconfig.On("TokenSource", anything, mockToken).Return(mockTokenSource, nil)
 		mockCalendarService.On("NewService", anything, anything).Return(nil, nil)
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(mockToken, nil)
 		mockCalendarService.On("ListCalendars", anything, anything).Return(nil, errors.New("failed to fetch calendar list"))
 
 		calendars, _, err := g.FetchCalendars(ctx, userID, code)
@@ -205,7 +202,7 @@ func TestFetchCalendars(t *testing.T) {
 		mockDao := daomock.NewDAO(t)
 		mockCalendarService := mocks.NewCalendarService(t)
 		mockconfig := mocks.NewOAuthConfig(t)
-		mockTokenSource := mocks.NewTokenSource(t)
+		//mockTokenSource := mocks.NewTokenSource(t)
 
 		g := &googleCalendar{
 			dao:             mockDao,
@@ -217,32 +214,23 @@ func TestFetchCalendars(t *testing.T) {
 		mockToken := &oauth2.Token{
 			AccessToken:  "access-token",
 			RefreshToken: "refresh-token",
-			Expiry:       time.Now(),
-		}
-
-		mockToken2 := &oauth2.Token{
-			AccessToken:  "access-token2",
-			RefreshToken: "refresh-token",
-			Expiry:       time.Now(),
+			Expiry:       time.Now().Add(-time.Hour),
 		}
 
 		mockToken = mockToken.WithExtra(map[string]interface{}{
 			"id_token": dummyjwt,
 		})
 
-		mockDao.On("SaveUserTokens", anything, anything, anything, anything, anything, anything).Return(nil).Once()
 		mockconfig.On("Exchange", anything, anything).Return(mockToken, nil)
 		mockconfig.On("GetGoogleAccountID", anything, anything).Return(mockClientID, nil)
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(mockToken2, nil)
-		mockconfig.On("TokenSource", anything, anything).Return(mockTokenSource, nil)
-		mockTokenSource.On("Token").Return(mockToken, nil)
+
 		mockDao.On("SaveUserTokens", anything, anything, anything, anything, anything, anything).Return(errors.New("failed to save token"))
 
 		calendars, _, err := g.FetchCalendars(ctx, userID, code)
 
 		assert.Error(t, err)
 		assert.Nil(t, calendars)
-		assert.Equal(t, "failed to save refreshed token: failed to save token", err.Error())
+		assert.Equal(t, "failed to save user tokens: failed to save token", err.Error())
 
 		mockDao.AssertExpectations(t)
 		mockconfig.AssertExpectations(t)
@@ -257,7 +245,7 @@ func TestFetchCalendars(t *testing.T) {
 		mockDao := daomock.NewDAO(t)
 		mockCalendarService := mocks.NewCalendarService(t)
 		mockconfig := mocks.NewOAuthConfig(t)
-		//mockTokenSource := mocks.NewTokenSource(t)
+		mockTokenSource := mocks.NewTokenSource(t)
 
 		g := &googleCalendar{
 			dao:             mockDao,
@@ -268,23 +256,24 @@ func TestFetchCalendars(t *testing.T) {
 		mockToken := &oauth2.Token{
 			AccessToken:  "access-token",
 			RefreshToken: "refresh-token",
-			Expiry:       time.Now().Add(time.Hour),
+			Expiry:       time.Now().Add(-time.Hour),
 		}
 
 		mockToken = mockToken.WithExtra(map[string]interface{}{
 			"id_token": dummyjwt,
 		})
 
+		mockconfig.On("TokenSource", anything, anything).Return(mockTokenSource, nil)
 		mockDao.On("SaveUserTokens", anything, anything, anything, anything, anything, anything).Return(nil).Once()
 		mockconfig.On("Exchange", anything, anything).Return(mockToken, nil)
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(nil, errors.New("failed to get a new token"))
+		mockTokenSource.On("Token").Return(nil, errors.New("failed to retrieve user tokens"))
 		mockconfig.On("GetGoogleAccountID", anything, anything).Return(mockClientID, nil)
 
 		calendars, _, err := g.FetchCalendars(ctx, userID, code)
 
 		assert.Error(t, err)
 		assert.Nil(t, calendars)
-		assert.Equal(t, "failed to retrieve user tokens: failed to get a new token", err.Error())
+		assert.Equal(t, "failed to refresh tokens: failed to retrieve user tokens", err.Error())
 
 		mockDao.AssertExpectations(t)
 		mockconfig.AssertExpectations(t)
@@ -311,7 +300,7 @@ func TestFetchCalendars(t *testing.T) {
 		oldToken := &oauth2.Token{
 			AccessToken:  "old-access-token",
 			RefreshToken: "old-refresh-token",
-			Expiry:       time.Now(),
+			Expiry:       time.Now().Add(-time.Hour),
 		}
 
 		oldToken = oldToken.WithExtra(map[string]interface{}{
@@ -337,7 +326,6 @@ func TestFetchCalendars(t *testing.T) {
 		mockDao.On("SaveUserTokens", anything, anything, anything, anything, anything, anything).Return(nil)
 
 		mockTokenSource.On("Token").Return(newToken, nil)
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(oldToken, nil)
 		mockConfig.On("TokenSource", anything, anything).Return(mockTokenSource, nil)
 		mockConfig.On("GetGoogleAccountID", anything, anything).Return(mockClientID, nil)
 		mockCalendarService.On("NewService", anything, anything).Return(nil, nil)
@@ -374,7 +362,7 @@ func TestFetchCalendars(t *testing.T) {
 		oldToken := &oauth2.Token{
 			AccessToken:  "old-access-token",
 			RefreshToken: "old-refresh-token",
-			Expiry:       time.Now(),
+			Expiry:       time.Now().Add(-time.Hour),
 		}
 
 		oldToken = oldToken.WithExtra(map[string]interface{}{
@@ -390,7 +378,6 @@ func TestFetchCalendars(t *testing.T) {
 		mockDao.On("SaveUserTokens", anything, anything, anything, anything, anything, anything).Return(nil).Once()
 		mockConfig.On("Exchange", anything, anything).Return(oldToken, nil)
 		mockTokenSource.On("Token").Return(newToken, nil)
-		mockDao.On("GetUserTokens", anything, anything, anything).Return(oldToken, nil)
 		mockConfig.On("TokenSource", anything, anything).Return(mockTokenSource, nil)
 		mockConfig.On("GetGoogleAccountID", anything, anything).Return(mockClientID, nil)
 		mockDao.On("SaveUserTokens", anything, anything, anything, anything, anything, anything).Return(errors.New("failed to save user tokens"))

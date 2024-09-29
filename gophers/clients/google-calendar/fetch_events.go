@@ -28,7 +28,7 @@ func (g *googleCalendar) fetchEvents(ctx context.Context, calendarID string, tok
 }
 
 // FetchEventsWithCode exchanges the authorization code for a token, saves the token to the database, and fetches events.
-func (g *googleCalendar) FetchEventsWithCode(ctx context.Context, userID int, code string, calendarID string, accountID string) ([]*calendar.Event, error) {
+func (g *googleCalendar) FetchEventsWithCode(ctx context.Context, userID int, code string, accountID string, calendarID string) ([]*calendar.Event, error) {
 	// Exchange the authorization code for an access token.
 	token, err := g.config.Exchange(ctx, code)
 	if err != nil {
