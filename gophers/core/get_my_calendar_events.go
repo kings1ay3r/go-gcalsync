@@ -14,8 +14,8 @@ func (c *calendarClient) GetMyCalendarEvents(ctx context.Context) ([]dto.Calenda
 		return nil, err
 	}
 	calendars, err := c.dao.GetUserCalendars(ctx, currUser.ID)
-	if err != nil || len(calendars) == 0 {
-		return nil, fmt.Errorf("unable to fetch watches: %w", err)
+	if err != nil {
+		return nil, fmt.Errorf("unable to fetch calendars: %w", err)
 	}
 	resp := make([]dto.Calendar, 0, len(calendars))
 	for _, calendar := range calendars {

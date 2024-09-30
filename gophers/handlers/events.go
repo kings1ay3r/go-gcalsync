@@ -6,7 +6,13 @@ import (
 
 func (h *handler) ListEventsHandler(_ http.ResponseWriter, r *http.Request) (interface{}, error) {
 	ctx := r.Context()
-	return h.core.GetMyCalendarEvents(ctx)
+	syncStatus := r.URL.Query().Get("sync")
+	resp, err := h.core.GetMyCalendarEvents(ctx)
+
+	if len(resp) == 0 && syncStatus == "true" {
+		return "Syncing events in the background. Please reload the page", nil
+	}
+	return resp, err
 }
 
 // ConnectHandler initiates the OAuth2 flow for Google Calendar access

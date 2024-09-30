@@ -19,7 +19,7 @@ func (h *handler) CallbackHandler(w http.ResponseWriter, r *http.Request) (inter
 
 	currUserID := ctx.Value(auth.ContextUserIDKey)
 
-	redirectUrl := fmt.Sprintf("/index?user_id=%s", currUserID.(string))
+	redirectUrl := fmt.Sprintf("/index?user_id=%s&sync=true", currUserID.(string))
 
 	http.Redirect(w, r, redirectUrl, http.StatusSeeOther)
 	return nil, nil
