@@ -15,5 +15,5 @@ type WatchData struct {
 }
 
 type RenewWatchesResponse struct {
-	Succesfull, Failed []*WatchData
+	Succesful, Failed []*WatchData
 }

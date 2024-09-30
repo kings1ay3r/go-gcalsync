@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"gcalsync/gophers/dto"
 	"gcalsync/gophers/middlewares/auth"
 )
@@ -13,13 +14,13 @@ func (c *calendarClient) GetMyCalendarEvents(ctx context.Context) ([]dto.Calenda
 		return nil, err
 	}
 	calendars, err := c.dao.GetUserCalendars(ctx, currUser.ID)
-	if err != nil {
-		return nil, err
+	if err != nil || len(calendars) == 0 {
+		return nil, fmt.Errorf("unable to fetch watches: %w", err)
 	}
-	var resp []dto.Calendar
+	resp := make([]dto.Calendar, 0, len(calendars))
 	for _, calendar := range calendars {
 
-		var dtoEvents []dto.Event
+		dtoEvents := make([]dto.Event, 0, len(calendar.Events))
 		for _, event := range calendar.Events {
 			dtoEvent := dto.Event{
 				ID:      event.EventID,

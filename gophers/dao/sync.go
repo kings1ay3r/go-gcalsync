@@ -74,7 +74,7 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []
 			}
 		}
 
-		// TODO: Dont save unsupported watches. eg; en.indian#holiday@group.v.calendar.google.com
+		// TODO: Accommodate for fault
 		watch := &Watch{
 			UserID:     userID,
 			CalendarID: calendar.ID,

@@ -5,19 +5,17 @@ import (
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
 	"net/http"
-	"os"
 )
 
 // TODO: move srv into member, avoid drilling
 
 type googleCalendarService struct {
-	webhookSecret string
 }
 
 // TODO: Implement Retries / Fault accommodation for requests
 
 func (g *googleCalendarService) NewService(ctx context.Context, client *http.Client) (*calendar.Service, error) {
-	g.webhookSecret = os.Getenv("WEBHOOK_SECRET_TOKEN")
+
 	srv, err := calendar.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		return srv, err

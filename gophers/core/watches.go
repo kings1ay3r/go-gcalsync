@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"gcalsync/gophers/clients/logger"
 	"gcalsync/gophers/dao"
 	"gcalsync/gophers/dto"
@@ -15,6 +16,7 @@ func (c *calendarClient) RenewExpiringWatches(ctx context.Context) {
 	if err != nil {
 		// TODO: Implement channel logging
 		log.Error(ctx, "unable to fetch pending watches")
+		return
 	}
 	var watchesToRenew []*dto.WatchData
 	tokens := map[string]*oauth2.Token{}
@@ -44,7 +46,7 @@ func (c *calendarClient) RenewExpiringWatches(ctx context.Context) {
 		log.Error(ctx, err.Error())
 	}
 	// TODO: Think about parallelizing / batchifying watches renewals, fault accommodation
-	for _, rw := range resp.Succesfull {
+	for _, rw := range resp.Succesful {
 		err := c.dao.SaveWatch(ctx, &dao.Watch{
 			ID:         rw.ID,
 			UserID:     rw.UserID,
@@ -54,9 +56,9 @@ func (c *calendarClient) RenewExpiringWatches(ctx context.Context) {
 			Expiry:     rw.Expiry,
 		})
 		if err != nil {
-			log.Error(ctx, "unable to save watch #%d: %w", rw.ID, err)
+			log.Error(ctx, fmt.Sprintf("unable to save watch #%d: %v", rw.ID, err))
 		}
 	}
-	log.Info(ctx, "Renewed %d watch(es), failed to renew %d watch(es)", len(resp.Succesfull), len(resp.Failed))
+	log.Info(ctx, "Renewed %d watch(es), failed to renew %d watch(es)", len(resp.Succesful), len(resp.Failed))
 
 }

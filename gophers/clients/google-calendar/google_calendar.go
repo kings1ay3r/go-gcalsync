@@ -54,6 +54,7 @@ type googleCalendar struct {
 	calendarService CalendarService
 	clientCache     *ClientCache
 	webhookURL      string
+	webhookSecret   string
 }
 
 // New initializes a GoogleCalendar instance with the DAO.
@@ -66,6 +67,10 @@ func New() (GoogleCalendar, error) {
 	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
 	redirectURL := os.Getenv("GOOGLE_CALLBACK_URL")
 	webhookURL := os.Getenv("GOOGLE_WEBHOOK_URL")
+	webhookSecret := os.Getenv("WEBHOOK_SECRET_TOKEN")
+	if webhookSecret == "" {
+		return nil, errors.New("WEBHOOK_SECRET_TOKEN environment variable not set")
+	}
 	if clientID == "" || clientSecret == "" || redirectURL == "" {
 		return nil, errors.New("GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, or GOOGLE_CALLBACK_URL not set")
 	}
@@ -84,6 +89,7 @@ func New() (GoogleCalendar, error) {
 		calendarService: &googleCalendarService{},
 		clientCache:     NewClientCache(time.Hour * 55), //Keeping expiry at 55 minutes, as google expiry is per hour
 		webhookURL:      webhookURL,
+		webhookSecret:   webhookSecret,
 	}, nil
 }
 
