@@ -2,11 +2,12 @@
 
 ### OverView
 
-This backend ˀapplication lets you connect your google accounts and sync all events in your google calendar. 
+This backend application lets you connect your google accounts and sync all events from your google calendar. 
 
 ### Setup
 
-* Clone the repo and navigate into the directoru.Copy `.env.sample` to `.env` & fill in the values.  
+* Clone the repo and navigate into the directoru.
+* Copy `.env.sample` to `.env` & fill in the values.  
 * Do `go get ./...`
 * To start the server, do run  `go run ./.../cmd`
 * Run the cron job using `go run ./.../crons`
