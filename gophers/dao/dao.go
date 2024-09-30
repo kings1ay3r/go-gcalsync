@@ -17,6 +17,9 @@ type DAO interface {
 	GetUserTokens(context.Context, int, string) (*oauth2.Token, error)
 	SaveUserCalendarData(context.Context, int, []*CalendarData) error
 	GetUserCalendars(context.Context, int) ([]Calendar, error)
+	SaveWatch(context.Context, *Watch) error
+	FindExpiringWatches(context.Context) ([]WatchesWithDetails, error)
+	WatchExists(context.Context, uint, string) (bool, error)
 }
 
 // New ...

@@ -33,6 +33,7 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []
 				CalendarID: calendarData.CalendarID,
 				Name:       calendarData.Name,
 				UserID:     uint(userID),
+				AccountID:  calendarData.AccountID,
 			}
 			if err := tx.Create(&calendar).Error; err != nil {
 				return rollbackWithError(tx, ctx, err, "error searching calendar")
@@ -72,6 +73,17 @@ func (d *dao) SaveUserCalendarData(ctx context.Context, userID int, calendars []
 				log.Info(ctx, "Event updated: %v", event.ID)
 			}
 		}
+
+		// TODO: Accommodate for fault
+		watch := &Watch{
+			UserID:     userID,
+			CalendarID: calendar.ID,
+			Expiry:     time.Now(),
+		}
+		if err := tx.Save(&watch).Error; err != nil {
+			return rollbackWithError(tx, ctx, err, "error inserting watch")
+		}
+		err = err
 	}
 
 	return tx.Commit().Error

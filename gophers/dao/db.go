@@ -25,7 +25,7 @@ func InitDB() error {
 		log.Error(nil, "Failed to connect to the database: %v", err)
 		return err
 	}
-	err = DB.AutoMigrate(&User{}, &Calendar{}, &Event{}, &UserTokens{})
+	err = DB.AutoMigrate(&User{}, &Calendar{}, &Event{}, &UserToken{}, &Watch{})
 
 	if err != nil {
 		log.Error(nil, "Failed to migrate database schema: %v", err)

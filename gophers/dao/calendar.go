@@ -9,14 +9,17 @@ import (
 )
 
 type Calendar struct {
-	ID         uint   `gorm:"primaryKey"`
+	ID         int    `gorm:"primaryKey"`
 	CalendarID string `gorm:"not null;uniqueIndex:idx_user_calendar"` // Ensuring unique constraint with userID
 	Name       string
-	UserID     uint    `gorm:"not null;uniqueIndex:idx_user_calendar"` // Foreign key to User
-	User       User    `gorm:"constraint:OnDelete:CASCADE;"`
-	Events     []Event `gorm:"foreignKey:CalendarID;constraint:OnDelete:CASCADE;"`
+	UserID     uint   `gorm:"not null;uniqueIndex:idx_user_calendar"` // Foreign key to User
+	AccountID  string `gorm:"not null;uniqueIndex:idx_user_calendar"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+
+	User   User    `gorm:"constraint:OnDelete:CASCADE;"`
+	Events []Event `gorm:"foreignKey:CalendarID;constraint:OnDelete:CASCADE;"`
+	Watch  []Watch `gorm:"foreignKey:CalendarID;constraint:OnDelete:CASCADE;"`
 }
 
 // FindCalendarByCalendarID ...

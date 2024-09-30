@@ -7,12 +7,15 @@ import (
 	"net/http"
 )
 
+// TODO: move srv into member, avoid drilling
+
 type googleCalendarService struct {
 }
 
 // TODO: Implement Retries / Fault accommodation for requests
 
 func (g *googleCalendarService) NewService(ctx context.Context, client *http.Client) (*calendar.Service, error) {
+
 	srv, err := calendar.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		return srv, err
@@ -26,4 +29,9 @@ func (g *googleCalendarService) ListEvents(ctx context.Context, srv *calendar.Se
 
 func (g *googleCalendarService) ListCalendars(ctx context.Context, srv *calendar.Service) (*calendar.CalendarList, error) {
 	return srv.CalendarList.List().Do()
+
+}
+
+func (g *googleCalendarService) Watch(ctx context.Context, srv *calendar.Service, calendarID string, channel *calendar.Channel) (*calendar.Channel, error) {
+	return srv.Events.Watch(calendarID, channel).Do()
 }

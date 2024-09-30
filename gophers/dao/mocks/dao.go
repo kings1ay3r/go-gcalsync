@@ -48,6 +48,36 @@ func (_m *DAO) FindCalendarByCalendarID(_a0 context.Context, _a1 string) (*dao.C
 	return r0, r1
 }
 
+// FindExpiringWatches provides a mock function with given fields: _a0
+func (_m *DAO) FindExpiringWatches(_a0 context.Context) ([]dao.WatchesWithDetails, error) {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindExpiringWatches")
+	}
+
+	var r0 []dao.WatchesWithDetails
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]dao.WatchesWithDetails, error)); ok {
+		return rf(_a0)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []dao.WatchesWithDetails); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]dao.WatchesWithDetails)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetUserCalendars provides a mock function with given fields: _a0, _a1
 func (_m *DAO) GetUserCalendars(_a0 context.Context, _a1 int) ([]dao.Calendar, error) {
 	ret := _m.Called(_a0, _a1)
@@ -172,6 +202,52 @@ func (_m *DAO) SaveUserTokens(_a0 context.Context, _a1 int, _a2 string, _a3 stri
 	}
 
 	return r0
+}
+
+// SaveWatch provides a mock function with given fields: _a0, _a1
+func (_m *DAO) SaveWatch(_a0 context.Context, _a1 *dao.Watch) error {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveWatch")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *dao.Watch) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WatchExists provides a mock function with given fields: _a0, _a1, _a2
+func (_m *DAO) WatchExists(_a0 context.Context, _a1 uint, _a2 string) (bool, error) {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	if len(ret) == 0 {
+		panic("no return value specified for WatchExists")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint, string) (bool, error)); ok {
+		return rf(_a0, _a1, _a2)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uint, string) bool); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uint, string) error); ok {
+		r1 = rf(_a0, _a1, _a2)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewDAO creates a new instance of DAO. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
