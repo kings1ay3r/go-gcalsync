@@ -1,13 +1,18 @@
 package handlers
 
 import (
-	"gcalsync/gophers/core"
 	"net/http"
 )
 
 func (h *handler) ListEventsHandler(_ http.ResponseWriter, r *http.Request) (interface{}, error) {
 	ctx := r.Context()
-	return h.core.GetMyCalendarEvents(ctx)
+	syncStatus := r.URL.Query().Get("sync")
+	resp, err := h.core.GetMyCalendarEvents(ctx)
+
+	if len(resp) == 0 && syncStatus == "true" {
+		return "Syncing events in the background. Please reload the page", nil
+	}
+	return resp, err
 }
 
 // ConnectHandler initiates the OAuth2 flow for Google Calendar access
@@ -20,14 +25,4 @@ func (h *handler) ConnectHandler(w http.ResponseWriter, r *http.Request) (interf
 	}
 	http.Redirect(w, r, url, http.StatusSeeOther)
 	return nil, nil
-}
-
-func New() (Handler, error) {
-	service, err := core.New()
-	if err != nil {
-		return nil, err
-	}
-	return &handler{
-		core: service,
-	}, nil
 }

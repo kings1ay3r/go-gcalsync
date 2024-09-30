@@ -24,6 +24,7 @@ type GoogleCalendar interface {
 	FetchEventsWithUserID(context.Context, int, string, string) ([]*calendar.Event, error)
 	GetAuthCodeURL(context.Context, string) string
 	RenewWatches(context.Context, []*dto.WatchData, map[string]*oauth2.Token) (dto.RenewWatchesResponse, []error)
+	FetchEventsFromResource(context.Context, string) ([]*calendar.Event, int, error)
 }
 
 //go:generate mockery --name=OAuthConfig --dir=./ --output=mocks --outpkg=mocks
@@ -87,7 +88,7 @@ func New() (GoogleCalendar, error) {
 		config:          &OAuthConfigImpl{config},
 		dao:             daoInstance,
 		calendarService: &googleCalendarService{},
-		clientCache:     NewClientCache(time.Hour * 55), //Keeping expiry at 55 minutes, as google expiry is per hour
+		clientCache:     NewClientCache(time.Minute * 55), //Keeping expiry at 55 minutes, as google expiry is per hour
 		webhookURL:      webhookURL,
 		webhookSecret:   webhookSecret,
 	}, nil

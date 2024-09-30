@@ -14,8 +14,9 @@ type Watch struct {
 	ChannelID  string `gorm:"not null"`
 	ResourceID string
 	Expiry     time.Time `gorm:"not null"`
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 
 	Calendar Calendar `gorm:"constraint:OnDelete:CASCADE;"`
 }
@@ -54,7 +55,7 @@ func (d *dao) FindExpiringWatches(ctx context.Context) ([]WatchesWithDetails, er
 		Joins("JOIN calendars ON watches.calendar_id = calendars.id").
 		Joins("JOIN user_tokens ON user_tokens.account_id = calendars.account_id AND user_tokens.user_id = calendars.user_id").
 		Where("watches.expiry <= ?", tomorrowMidnight).
-		Scan(&watches). // Use Scan to load results into the struct
+		Scan(&watches).
 		Error
 
 	// Process watchesWithDetails...

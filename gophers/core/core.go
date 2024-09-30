@@ -14,6 +14,7 @@ type Core interface {
 	GetAuthCodeURL(ctx context.Context) (string, error)
 	GetMyCalendarEvents(ctx context.Context) ([]dto.Calendar, error)
 	RenewExpiringWatches(ctx context.Context)
+	ProcessWebhook(ctx context.Context, resourceID string) error
 }
 
 func New() (Core, error) {

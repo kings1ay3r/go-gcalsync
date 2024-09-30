@@ -6,6 +6,8 @@ import (
 	context "context"
 	dao "gcalsync/gophers/dao"
 
+	dto "gcalsync/gophers/dto"
+
 	mock "github.com/stretchr/testify/mock"
 
 	oauth2 "golang.org/x/oauth2"
@@ -36,6 +38,36 @@ func (_m *DAO) FindCalendarByCalendarID(_a0 context.Context, _a1 string) (*dao.C
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*dao.Calendar)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FindCalendarByResourceIDWithToken provides a mock function with given fields: _a0, _a1
+func (_m *DAO) FindCalendarByResourceIDWithToken(_a0 context.Context, _a1 string) (*dto.CalendarDetailsByResourceIDResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindCalendarByResourceIDWithToken")
+	}
+
+	var r0 *dto.CalendarDetailsByResourceIDResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*dto.CalendarDetailsByResourceIDResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *dto.CalendarDetailsByResourceIDResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dto.CalendarDetailsByResourceIDResponse)
 		}
 	}
 

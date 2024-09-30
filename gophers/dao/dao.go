@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"gcalsync/gophers/dto"
 	"golang.org/x/oauth2"
 	"gorm.io/gorm"
 	"time"
@@ -20,6 +21,7 @@ type DAO interface {
 	SaveWatch(context.Context, *Watch) error
 	FindExpiringWatches(context.Context) ([]WatchesWithDetails, error)
 	WatchExists(context.Context, uint, string) (bool, error)
+	FindCalendarByResourceIDWithToken(context.Context, string) (*dto.CalendarDetailsByResourceIDResponse, error)
 }
 
 // New ...

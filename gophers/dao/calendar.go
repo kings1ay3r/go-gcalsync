@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"gcalsync/gophers/dto"
 	"gorm.io/gorm"
 	"time"
 )
@@ -55,4 +56,23 @@ func (d *dao) GetUserCalendars(ctx context.Context, userID int) ([]Calendar, err
 	}
 
 	return calendars, nil
+}
+
+// FindCalendarByResourceIDWithToken ...
+func (d *dao) FindCalendarByResourceIDWithToken(ctx context.Context, resourceID string) (*dto.CalendarDetailsByResourceIDResponse, error) {
+
+	var resp []*dto.CalendarDetailsByResourceIDResponse
+
+	err := d.DB.Table("watches AS w").
+		Select("w.resource_id, w.user_id, w.calendar_id, c.calendar_id AS google_calendar_id, ut.account_id, ut.access_token, ut.refresh_token, ut.expiry").
+		Joins("JOIN calendars AS c ON c.id = w.calendar_id").
+		Joins("JOIN user_tokens AS ut ON ut.account_id = c.account_id").
+		Where("w.resource_id = ?", resourceID).
+		Find(&resp).Error
+
+	if err != nil || len(resp) != 1 {
+		return nil, err
+	}
+
+	return resp[0], nil
 }
