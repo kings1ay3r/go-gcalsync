@@ -107,6 +107,36 @@ func (_m *CalendarService) NewService(_a0 context.Context, _a1 *http.Client) (*c
 	return r0, r1
 }
 
+// Watch provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *CalendarService) Watch(_a0 context.Context, _a1 *calendar.Service, _a2 string, _a3 *calendar.Channel) (*calendar.Channel, error) {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Watch")
+	}
+
+	var r0 *calendar.Channel
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *calendar.Service, string, *calendar.Channel) (*calendar.Channel, error)); ok {
+		return rf(_a0, _a1, _a2, _a3)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *calendar.Service, string, *calendar.Channel) *calendar.Channel); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*calendar.Channel)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *calendar.Service, string, *calendar.Channel) error); ok {
+		r1 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewCalendarService creates a new instance of CalendarService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewCalendarService(t interface {

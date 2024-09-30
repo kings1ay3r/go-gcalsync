@@ -58,9 +58,9 @@ func (_m *OAuthConfig) ClientID() string {
 	return r0
 }
 
-// Exchange provides a mock function with given fields: ctx, code
-func (_m *OAuthConfig) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
-	ret := _m.Called(ctx, code)
+// Exchange provides a mock function with given fields: _a0, _a1
+func (_m *OAuthConfig) Exchange(_a0 context.Context, _a1 string) (*oauth2.Token, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Exchange")
@@ -69,10 +69,10 @@ func (_m *OAuthConfig) Exchange(ctx context.Context, code string) (*oauth2.Token
 	var r0 *oauth2.Token
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) (*oauth2.Token, error)); ok {
-		return rf(ctx, code)
+		return rf(_a0, _a1)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, string) *oauth2.Token); ok {
-		r0 = rf(ctx, code)
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*oauth2.Token)
@@ -80,7 +80,7 @@ func (_m *OAuthConfig) Exchange(ctx context.Context, code string) (*oauth2.Token
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, code)
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -116,9 +116,9 @@ func (_m *OAuthConfig) GetGoogleAccountID(_a0 context.Context, _a1 string) (stri
 	return r0, r1
 }
 
-// TokenSource provides a mock function with given fields: ctx, t
-func (_m *OAuthConfig) TokenSource(ctx context.Context, t *oauth2.Token) oauth2.TokenSource {
-	ret := _m.Called(ctx, t)
+// TokenSource provides a mock function with given fields: _a0, _a1
+func (_m *OAuthConfig) TokenSource(_a0 context.Context, _a1 *oauth2.Token) oauth2.TokenSource {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TokenSource")
@@ -126,7 +126,7 @@ func (_m *OAuthConfig) TokenSource(ctx context.Context, t *oauth2.Token) oauth2.
 
 	var r0 oauth2.TokenSource
 	if rf, ok := ret.Get(0).(func(context.Context, *oauth2.Token) oauth2.TokenSource); ok {
-		r0 = rf(ctx, t)
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(oauth2.TokenSource)

@@ -10,8 +10,8 @@ import (
 
 // TODO: Encrypt refresh token
 
-// UserTokens ...
-type UserTokens struct {
+// UserToken ...
+type UserToken struct {
 	AccountID    string    `gorm:"primaryKey;type:text"` // Account ID is part of the primary key
 	UserID       int       `gorm:"primaryKey"`           // User ID is also part of the primary key
 	AccessToken  string    `gorm:"type:text"`
@@ -22,11 +22,11 @@ type UserTokens struct {
 // SaveUserTokens ...
 func (d *dao) SaveUserTokens(ctx context.Context, userID int, accountID string, accessToken string, refreshToken string, expiry time.Time) error {
 
-	var userTokens UserTokens
+	var userTokens UserToken
 	err := d.DB.Where("user_id = ? AND account_id = ?", userID, accountID).First(&userTokens).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			userTokens = UserTokens{
+			userTokens = UserToken{
 				UserID:       userID,
 				AccountID:    accountID,
 				AccessToken:  accessToken,
@@ -47,7 +47,7 @@ func (d *dao) SaveUserTokens(ctx context.Context, userID int, accountID string, 
 
 // GetUserTokens ...
 func (d *dao) GetUserTokens(ctx context.Context, userID int, accountID string) (*oauth2.Token, error) {
-	var userTokens UserTokens
+	var userTokens UserToken
 	err := d.DB.Where("user_id = ? AND account_id = ?", userID, accountID).First(&userTokens).Error
 	if err != nil {
 		return nil, err
