@@ -29,6 +29,9 @@ func Serve() {
 		return
 	}
 
+	// TODO: Implement authentication middleware for webhook
+	r.Handle("/notify", response.APIMiddleware(handler.NotifyHandler))
+
 	// Define routes with handlers // TODO: Extract Method, Refactor for Readability/Maintainability
 	r.Handle("/connect", auth.BearerAuth(response.APIMiddleware(handler.ConnectHandler))).Methods("GET")
 	r.Handle("/callback", auth.BearerAuth(response.APIMiddleware(handler.CallbackHandler))).Methods("GET")

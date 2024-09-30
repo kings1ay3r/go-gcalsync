@@ -56,6 +56,43 @@ func (_m *GoogleCalendar) FetchCalendars(_a0 context.Context, _a1 int, _a2 strin
 	return r0, r1, r2
 }
 
+// FetchEventsFromResource provides a mock function with given fields: _a0, _a1
+func (_m *GoogleCalendar) FetchEventsFromResource(_a0 context.Context, _a1 string) ([]*calendar.Event, int, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchEventsFromResource")
+	}
+
+	var r0 []*calendar.Event
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*calendar.Event, int, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) []*calendar.Event); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*calendar.Event)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) int); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, string) error); ok {
+		r2 = rf(_a0, _a1)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // FetchEventsWithCode provides a mock function with given fields: _a0, _a1, _a2, _a3, _a4
 func (_m *GoogleCalendar) FetchEventsWithCode(_a0 context.Context, _a1 int, _a2 string, _a3 string, _a4 string) ([]*calendar.Event, error) {
 	ret := _m.Called(_a0, _a1, _a2, _a3, _a4)

@@ -20,6 +20,10 @@ func (g *googleCalendar) fetchEvents(ctx context.Context, calendarID string, tok
 	}
 
 	eventsList, err := g.calendarService.ListEvents(ctx, srv, calendarID)
+
+	// TODO: Implement Use of NextSyncToken to get Delta
+	// TODO: Implement ListOptions to get deletedEvents
+	// TODO: Store Event Decorators
 	if err != nil {
 		return nil, err
 	}
@@ -47,4 +51,20 @@ func (g *googleCalendar) FetchEventsWithCode(ctx context.Context, userID int, co
 // FetchEventsWithUserID retrieves tokens from the database and fetches events.
 func (g *googleCalendar) FetchEventsWithUserID(ctx context.Context, userID int, accountID string, calendarID string) ([]*calendar.Event, error) {
 	return g.fetchEvents(ctx, calendarID, nil, userID, accountID)
+}
+
+// FetchEventsFromResource ...
+func (g *googleCalendar) FetchEventsFromResource(ctx context.Context, resourceID string) ([]*calendar.Event, int, error) {
+	watch, err := g.dao.FindCalendarByResourceIDWithToken(ctx, resourceID)
+	if err != nil {
+		return nil, 0, err
+	}
+	events, err := g.fetchEvents(
+		ctx,
+		watch.GoogleCalendarID,
+		nil,
+		watch.UserID,
+		watch.AccountID,
+	)
+	return events, watch.UserID, nil
 }

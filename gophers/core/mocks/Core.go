@@ -91,6 +91,29 @@ func (_m *Core) InsertCalendars(ctx context.Context, code string) error {
 	return r0
 }
 
+// ProcessWebhook provides a mock function with given fields: ctx, resourceID
+func (_m *Core) ProcessWebhook(ctx context.Context, resourceID string) error {
+	ret := _m.Called(ctx, resourceID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ProcessWebhook")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, resourceID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// RenewExpiringWatches provides a mock function with given fields: ctx
+func (_m *Core) RenewExpiringWatches(ctx context.Context) {
+	_m.Called(ctx)
+}
+
 // NewCore creates a new instance of Core. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewCore(t interface {

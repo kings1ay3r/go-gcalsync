@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"gcalsync/gophers/core"
 	"net/http"
 )
 
@@ -20,14 +19,4 @@ func (h *handler) ConnectHandler(w http.ResponseWriter, r *http.Request) (interf
 	}
 	http.Redirect(w, r, url, http.StatusSeeOther)
 	return nil, nil
-}
-
-func New() (Handler, error) {
-	service, err := core.New()
-	if err != nil {
-		return nil, err
-	}
-	return &handler{
-		core: service,
-	}, nil
 }
