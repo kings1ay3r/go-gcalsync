@@ -13,12 +13,14 @@ This backend application lets you connect your google accounts and sync all even
 * Run the cron job using `go run ./.../crons`
 * Run tests using `go test ./...`
 
-```
-    Auth middleware is bypassed using query params. 
-    Navigate to HOST:PORT/index?user_id=u1 
-    // change query param user_id=u2 for second user
+Auth middleware is bypassed using query params.
     
-    Visit the /connect endpoint to connect google accounts, with the same authorization.
-    
-    - You can connect multiple google accounts to same user. Same google accounts can be mapped to multiple users. The application will maintain this as seperate entities. 
-```  
+Navigate to `HOST:PORT/index?user_id=u1`
+// change query param user_id=u2 for second user
+
+Visit the /connect endpoint to connect google accounts, with the same authorization.
+
+    - You can connect multiple google accounts to same user.
+    - Same google accounts can be mapped to multiple users.
+    - The application will maintain this as seperate entities.
+
