@@ -1,15 +1,13 @@
 module gcalsync
 
-go 1.22
-
-toolchain go1.22.7
+go 1.23.0
 
 require (
 	github.com/gorilla/mux v1.8.1
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/oauth2 v0.23.0
+	golang.org/x/oauth2 v0.27.0
 	google.golang.org/api v0.198.0
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12
